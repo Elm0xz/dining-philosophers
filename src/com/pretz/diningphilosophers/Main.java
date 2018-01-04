@@ -70,11 +70,6 @@ class Philosopher implements Runnable {
                     leftFork.notify();*/
                 }
             }
-            try {
-                Thread.sleep(restingTime);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
             rest();
         }
         System.out.println(name + " (Philosopher " + id + ") leaving.");
