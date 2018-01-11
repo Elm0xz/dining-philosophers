@@ -1,6 +1,11 @@
 package com.pretz.diningphilosophers;
 
-public class SimpleSolution {
+import java.util.concurrent.Semaphore;
+
+import static com.pretz.diningphilosophers.SemaphoreSolution.philSemaphore;
+
+public class SemaphoreSolution {
+    protected static Semaphore philSemaphore;
 
     public static void main(String[] args) {
         Object fork1 = new Object();
@@ -9,11 +14,13 @@ public class SimpleSolution {
         Object fork4 = new Object();
         Object fork5 = new Object();
 
-        Philosopher phil1 = new SimpleSolutionPhilosopher(1, "Plato", fork1, fork2);
-        Philosopher phil2 = new SimpleSolutionPhilosopher(2, "Jacques Derrida", fork2, fork3);
-        Philosopher phil3 = new SimpleSolutionPhilosopher(3, "Aristotle", fork3, fork4);
-        Philosopher phil4 = new SimpleSolutionPhilosopher(4, "Immanuel Kant", fork4, fork5);
-        Philosopher phil5 = new SimpleSolutionPhilosopher(5, "Andrzej Duda", fork5, fork1);
+        philSemaphore = new Semaphore(5);
+
+        Philosopher phil1 = new SemaphoreSolutionPhilosopher(1, "St. Augustine", fork1, fork2);
+        Philosopher phil2 = new SemaphoreSolutionPhilosopher(2, "Friedrich Nietzsche", fork2, fork3);
+        Philosopher phil3 = new SemaphoreSolutionPhilosopher(3, "David Hume", fork3, fork4);
+        Philosopher phil4 = new SemaphoreSolutionPhilosopher(4, "Epicurus", fork4, fork5);
+        Philosopher phil5 = new SemaphoreSolutionPhilosopher(5, "Vladimir Putin", fork5, fork1);
 
         Thread thread1 = new Thread(phil1, "Philosopher 1");
         Thread thread2 = new Thread(phil2, "Philosopher 2");
@@ -26,20 +33,19 @@ public class SimpleSolution {
         thread3.start();
         thread4.start();
         thread5.start();
-
     }
 }
 
-class SimpleSolutionPhilosopher implements Philosopher {
+class SemaphoreSolutionPhilosopher implements Philosopher {
     private static int eatingTime = 10;
-    private static int restingTime = 5;
+    private static int restingTime = 3;
 
     private int id;
     private String name;
     private final Object leftFork;
     private final Object rightFork;
 
-    public SimpleSolutionPhilosopher(int philId, String name, Object leftFork, Object rightFork) {
+    public SemaphoreSolutionPhilosopher(int philId, String name, Object leftFork, Object rightFork) {
         id = philId;
         this.name = name;
         this.leftFork = leftFork;
@@ -51,17 +57,24 @@ class SimpleSolutionPhilosopher implements Philosopher {
     public void run() {
         int i = 0;
         while (i < 100) {
-            synchronized (leftFork) {
-                synchronized (rightFork) {
-                    eat();
-                    i++;
-                }
+            try {
+                checkAvailablePermits();
+                philSemaphore.acquire();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
-            rest();
+            try {
+                eat();
+            } finally {
+                checkAvailablePermits();
+                philSemaphore.release();
+                i++;
+            }
         }
         System.out.println(name + " (Philosopher " + id + ") leaving.");
     }
 
+    @Override
     public void eat() {
         System.out.println(name + " (Philosopher " + id + ") started eating.");
         try {
@@ -72,6 +85,7 @@ class SimpleSolutionPhilosopher implements Philosopher {
         System.out.println(name + " (Philosopher " + id + ") finished eating.");
     }
 
+    @Override
     public void rest() {
         try {
             Thread.sleep(restingTime);
@@ -79,5 +93,10 @@ class SimpleSolutionPhilosopher implements Philosopher {
             e.printStackTrace();
         }
     }
-}
 
+    public void checkAvailablePermits() {
+        System.out.println("Available permits: " + philSemaphore.availablePermits());
+    }
+
+
+}
