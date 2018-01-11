@@ -1,19 +1,19 @@
 package com.pretz.diningphilosophers;
 
-public class Main {
+public class SimpleSolution {
 
     public static void main(String[] args) {
-        Fork fork1 = new Fork("fork1");
-        Fork fork2 = new Fork("fork2");
-        Fork fork3 = new Fork("fork3");
-        Fork fork4 = new Fork("fork4");
-        Fork fork5 = new Fork("fork5");
+        Object fork1 = new Object();
+        Object fork2 = new Object();
+        Object fork3 = new Object();
+        Object fork4 = new Object();
+        Object fork5 = new Object();
 
-        Philosopher phil1 = new Philosopher(1, "Plato", fork1, fork2);
-        Philosopher phil2 = new Philosopher(2, "Jacques Derrida", fork2, fork3);
-        Philosopher phil3 = new Philosopher(3, "Aristotle", fork3, fork4);
-        Philosopher phil4 = new Philosopher(4, "Immanuel Kant", fork4, fork5);
-        Philosopher phil5 = new Philosopher(5, "Andrzej Duda", fork5, fork1);
+        SimpleSolutionPhilosopher phil1 = new SimpleSolutionPhilosopher(1, "Plato", fork1, fork2);
+        SimpleSolutionPhilosopher phil2 = new SimpleSolutionPhilosopher(2, "Jacques Derrida", fork2, fork3);
+        SimpleSolutionPhilosopher phil3 = new SimpleSolutionPhilosopher(3, "Aristotle", fork3, fork4);
+        SimpleSolutionPhilosopher phil4 = new SimpleSolutionPhilosopher(4, "Immanuel Kant", fork4, fork5);
+        SimpleSolutionPhilosopher phil5 = new SimpleSolutionPhilosopher(5, "Andrzej Duda", fork5, fork1);
 
         Thread thread1 = new Thread(phil1, "Philosopher 1");
         Thread thread2 = new Thread(phil2, "Philosopher 2");
@@ -30,17 +30,16 @@ public class Main {
     }
 }
 
-class Philosopher implements Runnable {
+class SimpleSolutionPhilosopher implements Runnable, Philosopher {
     private static int eatingTime = 10;
-    private static int restingTime = 10;
-    private static boolean starting = true;
+    private static int restingTime = 5;
 
     private int id;
     private String name;
-    private final Fork leftFork;
-    private final Fork rightFork;
+    private final Object leftFork;
+    private final Object rightFork;
 
-    public Philosopher(int philId, String name, Fork leftFork, Fork rightFork) {
+    public SimpleSolutionPhilosopher(int philId, String name, Object leftFork, Object rightFork) {
         id = philId;
         this.name = name;
         this.leftFork = leftFork;
@@ -54,20 +53,8 @@ class Philosopher implements Runnable {
         while (i < 100) {
             synchronized (leftFork) {
                 synchronized (rightFork) {
-/*                    if (starting) {
-                        starting = false;
-                    } else {
-                        try {
-                            leftFork.wait();
-                            rightFork.wait();
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }*/
                     eat();
                     i++;
-/*                    rightFork.notify();
-                    leftFork.notify();*/
                 }
             }
             rest();
@@ -75,7 +62,7 @@ class Philosopher implements Runnable {
         System.out.println(name + " (Philosopher " + id + ") leaving.");
     }
 
-    private void eat() {
+    public void eat() {
 
         System.out.println(name + " (Philosopher " + id + ") started eating.");
         try {
@@ -87,21 +74,13 @@ class Philosopher implements Runnable {
 
     }
 
-    private void rest() {
+    public void rest() {
 
         try {
             Thread.sleep(restingTime);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-    }
-}
-
-class Fork {
-    private String name;
-
-    public Fork(String name) {
-        this.name = name;
     }
 }
 
