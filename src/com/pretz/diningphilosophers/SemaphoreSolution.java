@@ -2,19 +2,15 @@ package com.pretz.diningphilosophers;
 
 import java.util.concurrent.Semaphore;
 
-import static com.pretz.diningphilosophers.SemaphoreSolution.philSemaphore;
-
 public class SemaphoreSolution {
-    protected static Semaphore philSemaphore;
 
     public static void main(String[] args) {
-        Object fork1 = new Object();
-        Object fork2 = new Object();
-        Object fork3 = new Object();
-        Object fork4 = new Object();
-        Object fork5 = new Object();
+        Semaphore fork1 = new Semaphore(1);
+        Semaphore fork2 = new Semaphore(1);
+        Semaphore fork3 = new Semaphore(1);
+        Semaphore fork4 = new Semaphore(1);
+        Semaphore fork5 = new Semaphore(1);
 
-        philSemaphore = new Semaphore(5);
 
         Philosopher phil1 = new SemaphoreSolutionPhilosopher(1, "St. Augustine", fork1, fork2);
         Philosopher phil2 = new SemaphoreSolutionPhilosopher(2, "Friedrich Nietzsche", fork2, fork3);
@@ -38,14 +34,14 @@ public class SemaphoreSolution {
 
 class SemaphoreSolutionPhilosopher implements Philosopher {
     private static int eatingTime = 10;
-    private static int restingTime = 3;
+    private static int restingTime = 0;
 
     private int id;
     private String name;
-    private final Object leftFork;
-    private final Object rightFork;
+    private final Semaphore leftFork;
+    private final Semaphore rightFork;
 
-    public SemaphoreSolutionPhilosopher(int philId, String name, Object leftFork, Object rightFork) {
+    public SemaphoreSolutionPhilosopher(int philId, String name, Semaphore leftFork, Semaphore rightFork) {
         id = philId;
         this.name = name;
         this.leftFork = leftFork;
@@ -57,17 +53,13 @@ class SemaphoreSolutionPhilosopher implements Philosopher {
     public void run() {
         int i = 0;
         while (i < 100) {
-            try {
-                checkAvailablePermits();
-                philSemaphore.acquire();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+            leftFork.tryAcquire();
+            rightFork.tryAcquire();
             try {
                 eat();
             } finally {
-                checkAvailablePermits();
-                philSemaphore.release();
+                leftFork.release();
+                rightFork.release();
                 i++;
             }
         }
@@ -93,10 +85,4 @@ class SemaphoreSolutionPhilosopher implements Philosopher {
             e.printStackTrace();
         }
     }
-
-    public void checkAvailablePermits() {
-        System.out.println("Available permits: " + philSemaphore.availablePermits());
-    }
-
-
 }
