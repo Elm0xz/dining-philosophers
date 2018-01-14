@@ -1,5 +1,9 @@
 package com.pretz.diningphilosophers;
 
+/**
+ * This simple solution is based on nested synchronizing on both forks and adding resting time for each philosopher between consecutive meals.
+ * When resting time is lowered to zero, deadlocks occur.
+ */
 public class SimpleSolution {
 
     public static void main(String[] args) {

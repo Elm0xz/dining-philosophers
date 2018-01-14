@@ -2,6 +2,12 @@ package com.pretz.diningphilosophers;
 
 import java.util.concurrent.Semaphore;
 
+/**
+ * Semaphore based solution treats every fork as an semaphore with 1 permit. Each philosopher asks for left fork,
+ * if granted then asks for right fork. If both forks are given to philosopher, he can eat. If not, then philosopher puts the left fork back.
+ * In this approach, semaphore is actually fulfilling the role of simple mutex.
+ * Rest time is optional, even without it solution should work.
+ */
 public class SemaphoreSolution {
 
     public static void main(String[] args) {
