@@ -11,7 +11,6 @@ public class SemaphoreSolution {
         Semaphore fork4 = new Semaphore(1);
         Semaphore fork5 = new Semaphore(1);
 
-
         Philosopher phil1 = new SemaphoreSolutionPhilosopher(1, "St. Augustine", fork1, fork2);
         Philosopher phil2 = new SemaphoreSolutionPhilosopher(2, "Friedrich Nietzsche", fork2, fork3);
         Philosopher phil3 = new SemaphoreSolutionPhilosopher(3, "David Hume", fork3, fork4);
@@ -34,7 +33,7 @@ public class SemaphoreSolution {
 
 class SemaphoreSolutionPhilosopher implements Philosopher {
     private static int eatingTime = 10;
-    private static int restingTime = 0;
+    private static int restingTime = 1;
 
     private int id;
     private String name;
@@ -51,16 +50,20 @@ class SemaphoreSolutionPhilosopher implements Philosopher {
 
     @Override
     public void run() {
+        boolean leftForkAcquired;
+        boolean rightForkAcquired;
         int i = 0;
         while (i < 100) {
-            leftFork.tryAcquire();
-            rightFork.tryAcquire();
-            try {
-                eat();
-            } finally {
+            leftForkAcquired = leftFork.tryAcquire();
+            if (leftForkAcquired) {
+                rightForkAcquired = rightFork.tryAcquire();
+                if (rightForkAcquired) {
+                    eat();
+                    i++;
+                    rightFork.release();
+                }
                 leftFork.release();
-                rightFork.release();
-                i++;
+                rest();
             }
         }
         System.out.println(name + " (Philosopher " + id + ") leaving.");
